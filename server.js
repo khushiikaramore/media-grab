@@ -3,11 +3,17 @@ const https = require('https');
 const http = require('http');
 const { URL } = require('url');
 const path = require('path');
+const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(express.static(__dirname));
+app.get('/', (req, res) => {
+    const filePath = path.join(__dirname, 'index.html');
+    res.sendFile(filePath);
+});
+
+app.use(express.static(__dirname, { index: 'index.html' }));
 
 app.get('/proxy', async (req, res) => {
     const targetUrl = req.query.url;
@@ -42,7 +48,7 @@ app.get('/proxy', async (req, res) => {
             }
 
             if (proxyRes.statusCode !== 200) {
-                return res.status(proxyRes.status).json({ error: `Upstream returned ${proxyRes.statusCode}` });
+                return res.status(proxyRes.statusCode).json({ error: 'Upstream returned ' + proxyRes.statusCode });
             }
 
             const contentType = proxyRes.headers['content-type'] || 'application/octet-stream';
@@ -133,5 +139,5 @@ app.get('/info', async (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`MediaGrab server running at http://localhost:${PORT}`);
+    console.log('MediaGrab server running at http://localhost:' + PORT);
 });
