@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediaGrab - Image & Video Downloader</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #fff;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px 20px;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, #f857a6, #ff5858);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            color: #aaa;
+            font-size: 1rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 700px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 12px;
+            padding: 8px;
+            transition: border-color 0.3s;
+        }
+
+        .input-group:focus-within {
+            border-color: #f857a6;
+        }
+
+        .input-group input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #fff;
+            font-size: 1rem;
+            padding: 10px 14px;
+        }
+
+        .input-group input::placeholder {
+            color: #888;
+        }
+
+        .btn {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:active {
+            transform: scale(0.96);
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, #f857a6, #ff5858);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 4px 20px rgba(248, 87, 166, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .status {
+            text-align: center;
+            margin-top: 20px;
+            min-height: 30px;
+            font-size: 0.95rem;
+        }
+
+        .status.error {
+            color: #ff5858;
+        }
+
+        .status.success {
+            color: #58ff7d;
+        }
+
+        .status.loading {
+            color: #ffd97d;
+        }
+
+        .preview-area {
+            margin-top: 24px;
+            text-align: center;
+            display: none;
+        }
+
+        .preview-area img,
+        .preview-area video {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 12px;
+            border: 2px solid rgba(255,255,255,0.1);
+            background: #000;
+        }
+
+        .download-section {
+            margin-top: 16px;
+            display: none;
+            text-align: center;
+        }
+
+        .file-info {
+            margin-bottom: 12px;
+            color: #ccc;
+            font-size: 0.9rem;
+        }
+
+        .btn-download {
+            background: linear-gradient(90deg, #11998e, #38ef7d);
+            color: #fff;
+            padding: 14px 40px;
+            font-size: 1.05rem;
+        }
+
+        .btn-download:hover {
+            box-shadow: 0 4px 20px rgba(56, 239, 125, 0.4);
+        }
+
+        .history {
+            margin-top: 40px;
+            width: 100%;
+            max-width: 700px;
+            padding: 0 20px 40px;
+        }
+
+        .history h2 {
+            font-size: 1.2rem;
+            color: #aaa;
+            margin-bottom: 12px;
+        }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .history-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 0.85rem;
+            color: #ccc;
+            word-break: break-all;
+        }
+
+        .history-item a {
+            color: #f857a6;
+            text-decoration: none;
+            margin-left: 10px;
+            white-space: nowrap;
+        }
+
+        .history-item a:hover {
+            text-decoration: underline;
+        }
+
+        .empty-history {
+            color: #555;
+            font-size: 0.9rem;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .supported-formats {
+            margin-top: 30px;
+            text-align: center;
+            color: #666;
+            font-size: 0.8rem;
+            padding-bottom: 40px;
+        }
+
+        .supported-formats span {
+            background: rgba(255,255,255,0.06);
+            padding: 4px 10px;
+            border-radius: 20px;
+            margin: 3px;
+            display: inline-block;
+        }
+
+        @media (max-width: 500px) {
+            header h1 { font-size: 1.8rem; }
+            .input-group { flex-direction: column; }
+            .btn { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>MediaGrab</h1>
+        <p>Paste any image or video link and download it instantly</p>
+    </header>
+
+    <div class="container">
+        <div class="input-group">
+            <input type="text" id="urlInput" placeholder="Paste image or video URL here..." autocomplete="off" />
+            <button class="btn btn-primary" id="fetchBtn" onclick="fetchMedia()">Fetch</button>
+        </div>
+
+        <div class="status" id="status"></div>
+
+        <div class="preview-area" id="previewArea"></div>
+
+        <div class="download-section" id="downloadSection">
+            <div class="file-info" id="fileInfo"></div>
+            <button class="btn btn-download" id="downloadBtn" onclick="downloadMedia()">Download</button>
+        </div>
+    </div>
+
+    <div class="history" id="historySection" style="display:none;">
+        <h2>Recent Downloads</h2>
+        <div class="history-list" id="historyList"></div>
+    </div>
+
+    <div class="supported-formats">
+        Supported: JPG, PNG, GIF, WEBP, BMP, SVG &bull; MP4, WEBM, OGG, MOV
+    </div>
+
+    <script>
+        const IMAGE_EXTS = ['.jpg','.jpeg','.png','.gif','.webp','.bmp','.svg','.ico','.tiff'];
+        const VIDEO_EXTS = ['.mp4','.webm','.ogg','.mov','.avi','.mkv'];
+
+        let currentBlobUrl = null;
+        let currentFileName = 'download';
+
+        const urlInput = document.getElementById('urlInput');
+        const fetchBtn = document.getElementById('fetchBtn');
+        const status = document.getElementById('status');
+        const previewArea = document.getElementById('previewArea');
+        const downloadSection = document.getElementById('downloadSection');
+        const fileInfo = document.getElementById('fileInfo');
+        const historySection = document.getElementById('historySection');
+        const historyList = document.getElementById('historyList');
+
+        urlInput.addEventListener('keydown', e => {
+            if (e.key === 'Enter') fetchMedia();
+        });
+
+        function setStatus(msg, type) {
+            status.textContent = msg;
+            status.className = 'status ' + (type || '');
+        }
+
+        function getExt(url) {
+            try {
+                const pathname = new URL(url).pathname.toLowerCase();
+                for (const ext of IMAGE_EXTS.concat(VIDEO_EXTS)) {
+                    if (pathname.endsWith(ext)) return ext;
+                }
+            } catch {}
+            return null;
+        }
+
+        function isVideoType(contentType) {
+            return contentType && contentType.startsWith('video');
+        }
+
+        async function fetchMedia() {
+            const url = urlInput.value.trim();
+            if (!url) {
+                setStatus('Please enter a URL', 'error');
+                return;
+            }
+
+            try {
+                new URL(url);
+            } catch {
+                setStatus('Invalid URL format', 'error');
+                return;
+            }
+
+            setStatus('Fetching media...', 'loading');
+            fetchBtn.disabled = true;
+            previewArea.style.display = 'none';
+            downloadSection.style.display = 'none';
+            if (currentBlobUrl) {
+                URL.revokeObjectURL(currentBlobUrl);
+                currentBlobUrl = null;
+            }
+
+            try {
+                const response = await fetch(url, { mode: 'cors' });
+                if (!response.ok) throw new Error(`HTTP ${response.status} ${response.statusText}`);
+
+                const contentType = response.headers.get('content-type') || '';
+                const blob = await response.blob();
+
+                const extFromUrl = getExt(url);
+                let ext = extFromUrl;
+                let isVideo = false;
+
+                if (isVideoType(contentType) || VIDEO_EXTS.some(v => contentType.includes(v.replace('.','')))) {
+                    isVideo = true;
+                    ext = ext || '.mp4';
+                } else if (contentType.includes('image') || IMAGE_EXTS.some(i => contentType.includes(i.replace('.','')))) {
+                    isVideo = false;
+                    ext = ext || '.png';
+                } else if (extFromUrl) {
+                    isVideo = VIDEO_EXTS.includes(extFromUrl);
+                } else {
+                    const sniff = blob.type;
+                    if (isVideoType(sniff)) { isVideo = true; ext = '.mp4'; }
+                    else { ext = '.png'; }
+                }
+
+                currentBlobUrl = URL.createObjectURL(blob);
+                const MIME = isVideo ? 'video/mp4' : 'image/' + ext.replace('.', '');
+
+                const urlPath = new URL(url).pathname.split('/').pop().split('?')[0];
+                currentFileName = urlPath && urlPath.includes('.') ? urlPath : 'media' + ext;
+
+                const sizeMB = (blob.size / (1024 * 1024)).toFixed(2);
+
+                previewArea.innerHTML = '';
+                if (isVideo) {
+                    const vid = document.createElement('video');
+                    vid.src = currentBlobUrl;
+                    vid.controls = true;
+                    vid.style.maxHeight = '400px';
+                    previewArea.appendChild(vid);
+                } else {
+                    const img = document.createElement('img');
+                    img.src = currentBlobUrl;
+                    img.alt = 'Preview';
+                    previewArea.appendChild(img);
+                }
+                previewArea.style.display = 'block';
+
+                fileInfo.textContent = `${currentFileName}  —  ${sizeMB} MB`;
+                downloadSection.style.display = 'block';
+
+                setStatus('Ready to download!', 'success');
+                addHistory(url, currentFileName);
+            } catch (err) {
+                setStatus('Failed: ' + err.message + '. The server may block cross-origin requests. Try a direct image/video URL.', 'error');
+            } finally {
+                fetchBtn.disabled = false;
+            }
+        }
+
+        function downloadMedia() {
+            if (!currentBlobUrl) return;
+            const a = document.createElement('a');
+            a.href = currentBlobUrl;
+            a.download = currentFileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        function addHistory(url, name) {
+            let history = JSON.parse(localStorage.getItem('mg_history') || '[]');
+            history.unshift({ url, name, time: Date.now() });
+            if (history.length > 20) history = history.slice(0, 20);
+            localStorage.setItem('mg_history', JSON.stringify(history));
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const history = JSON.parse(localStorage.getItem('mg_history') || '[]');
+            if (history.length === 0) {
+                historySection.style.display = 'none';
+                return;
+            }
+            historySection.style.display = 'block';
+            historyList.innerHTML = '';
+            history.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'history-item';
+                const shortUrl = item.url.length > 70 ? item.url.substring(0, 70) + '...' : item.url;
+                div.innerHTML = `<span>${item.name}</span><a href="${item.url}" target="_blank" rel="noopener">${shortUrl}</a>`;
+                historyList.appendChild(div);
+            });
+        }
+
+        renderHistory();
+    </script>
+</body>
+</html>
