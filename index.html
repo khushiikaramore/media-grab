@@ -203,13 +203,6 @@
             text-decoration: underline;
         }
 
-        .empty-history {
-            color: #555;
-            font-size: 0.9rem;
-            text-align: center;
-            padding: 20px;
-        }
-
         .supported-formats {
             margin-top: 30px;
             text-align: center;
@@ -262,7 +255,7 @@
     </div>
 
     <div class="supported-formats">
-        Supported: JPG, PNG, GIF, WEBP, BMP, SVG &bull; MP4, WEBM, OGG, MOV
+        Supported: JPG, PNG, GIF, WEBP, BMP, SVG &bull; MP4, WEBM, OGG, MOV &bull; Direct media links from any site
     </div>
 
     <script>
@@ -274,20 +267,23 @@
 
         const urlInput = document.getElementById('urlInput');
         const fetchBtn = document.getElementById('fetchBtn');
-        const status = document.getElementById('status');
+        const statusEl = document.getElementById('status');
         const previewArea = document.getElementById('previewArea');
         const downloadSection = document.getElementById('downloadSection');
         const fileInfo = document.getElementById('fileInfo');
         const historySection = document.getElementById('historySection');
         const historyList = document.getElementById('historyList');
 
+        const PROXY_BASE = window.location.origin + '/proxy?url=';
+        const INFO_BASE = window.location.origin + '/info?url=';
+
         urlInput.addEventListener('keydown', e => {
             if (e.key === 'Enter') fetchMedia();
         });
 
         function setStatus(msg, type) {
-            status.textContent = msg;
-            status.className = 'status ' + (type || '');
+            statusEl.textContent = msg;
+            statusEl.className = 'status ' + (type || '');
         }
 
         function getExt(url) {
@@ -328,8 +324,12 @@
             }
 
             try {
-                const response = await fetch(url, { mode: 'cors' });
-                if (!response.ok) throw new Error(`HTTP ${response.status} ${response.statusText}`);
+                const proxyUrl = PROXY_BASE + encodeURIComponent(url);
+                const response = await fetch(proxyUrl);
+                if (!response.ok) {
+                    const errData = await response.json().catch(() => null);
+                    throw new Error(errData?.error || `HTTP ${response.status}`);
+                }
 
                 const contentType = response.headers.get('content-type') || '';
                 const blob = await response.blob();
@@ -353,7 +353,6 @@
                 }
 
                 currentBlobUrl = URL.createObjectURL(blob);
-                const MIME = isVideo ? 'video/mp4' : 'image/' + ext.replace('.', '');
 
                 const urlPath = new URL(url).pathname.split('/').pop().split('?')[0];
                 currentFileName = urlPath && urlPath.includes('.') ? urlPath : 'media' + ext;
@@ -375,13 +374,13 @@
                 }
                 previewArea.style.display = 'block';
 
-                fileInfo.textContent = `${currentFileName}  —  ${sizeMB} MB`;
+                fileInfo.textContent = currentFileName + '  —  ' + sizeMB + ' MB';
                 downloadSection.style.display = 'block';
 
                 setStatus('Ready to download!', 'success');
                 addHistory(url, currentFileName);
             } catch (err) {
-                setStatus('Failed: ' + err.message + '. The server may block cross-origin requests. Try a direct image/video URL.', 'error');
+                setStatus('Failed: ' + err.message, 'error');
             } finally {
                 fetchBtn.disabled = false;
             }
@@ -399,7 +398,7 @@
 
         function addHistory(url, name) {
             let history = JSON.parse(localStorage.getItem('mg_history') || '[]');
-            history.unshift({ url, name, time: Date.now() });
+            history.unshift({ url: url, name: name, time: Date.now() });
             if (history.length > 20) history = history.slice(0, 20);
             localStorage.setItem('mg_history', JSON.stringify(history));
             renderHistory();
@@ -417,7 +416,7 @@
                 const div = document.createElement('div');
                 div.className = 'history-item';
                 const shortUrl = item.url.length > 70 ? item.url.substring(0, 70) + '...' : item.url;
-                div.innerHTML = `<span>${item.name}</span><a href="${item.url}" target="_blank" rel="noopener">${shortUrl}</a>`;
+                div.innerHTML = '<span>' + item.name + '</span><a href="' + item.url + '" target="_blank" rel="noopener">' + shortUrl + '</a>';
                 historyList.appendChild(div);
             });
         }

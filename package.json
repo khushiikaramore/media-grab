@@ -1,0 +1,15 @@
+{
+  "name": "media-grab",
+  "version": "1.0.0",
+  "description": "Download any image or video by link",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": ["downloader", "image", "video", "media"],
+  "author": "khushiikaramore",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
