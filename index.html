@@ -137,9 +137,14 @@
         const IMAGE_EXTS = ['.jpg','.jpeg','.png','.gif','.webp','.bmp','.svg','.ico','.tiff'];
         const VIDEO_EXTS = ['.mp4','.webm','.ogg','.mov','.avi','.mkv'];
         const CORS_PROXIES = [
+            url => 'https://corsproxy.org/?' + encodeURIComponent(url),
             url => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url),
             url => 'https://corsproxy.io/?url=' + encodeURIComponent(url),
         ];
+
+        function isYouTubeUrl(url) {
+            return /youtu(\.be|be\.com)/.test(url);
+        }
 
         let currentBlobUrl = null;
         let currentFileName = 'download';
@@ -202,6 +207,12 @@
             previewArea.style.display = 'none';
             downloadSection.style.display = 'none';
             if (currentBlobUrl) { URL.revokeObjectURL(currentBlobUrl); currentBlobUrl = null; }
+
+            if (isYouTubeUrl(url)) {
+                setStatus('YouTube page links cannot be downloaded directly. Use a direct media URL (.mp4, .jpg, etc.) or try a YouTube video downloader site like y2mate.com', 'error');
+                fetchBtn.disabled = false;
+                return;
+            }
 
             try {
                 const response = await fetchWithProxy(url);
