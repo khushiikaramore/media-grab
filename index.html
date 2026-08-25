@@ -136,11 +136,7 @@
     <script>
         const IMAGE_EXTS = ['.jpg','.jpeg','.png','.gif','.webp','.bmp','.svg','.ico','.tiff'];
         const VIDEO_EXTS = ['.mp4','.webm','.ogg','.mov','.avi','.mkv'];
-        const CORS_PROXIES = [
-            url => 'https://corsproxy.org/?' + encodeURIComponent(url),
-            url => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url),
-            url => 'https://corsproxy.io/?url=' + encodeURIComponent(url),
-        ];
+        const API_BASE = window.location.origin + '/api/proxy?url=';
 
         function isYouTubeUrl(url) {
             return /youtu(\.be|be\.com)/.test(url);
@@ -185,17 +181,6 @@
             return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         }
 
-        async function fetchWithProxy(url) {
-            for (const proxyFn of CORS_PROXIES) {
-                try {
-                    const proxyUrl = proxyFn(url);
-                    const resp = await fetch(proxyUrl, { signal: AbortSignal.timeout(15000) });
-                    if (resp.ok) return resp;
-                } catch {}
-            }
-            throw new Error('All proxies failed. Try a different URL.');
-        }
-
         async function fetchMedia() {
             const url = urlInput.value.trim();
             if (!url) { setStatus('Please enter a URL', 'error'); return; }
@@ -215,7 +200,12 @@
             }
 
             try {
-                const response = await fetchWithProxy(url);
+                const proxyUrl = API_BASE + encodeURIComponent(url);
+                const response = await fetch(proxyUrl);
+                if (!response.ok) {
+                    const errData = await response.json().catch(() => null);
+                    throw new Error(errData?.error || 'HTTP ' + response.status);
+                }
 
                 const contentType = response.headers.get('content-type') || '';
                 const contentLength = parseInt(response.headers.get('content-length') || '0');
