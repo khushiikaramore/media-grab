@@ -5,11 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MediaGrab - Image & Video Downloader</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -21,10 +17,7 @@
             color: #fff;
         }
 
-        header {
-            text-align: center;
-            padding: 40px 20px 20px;
-        }
+        header { text-align: center; padding: 40px 20px 20px; }
 
         header h1 {
             font-size: 2.5rem;
@@ -34,190 +27,73 @@
             margin-bottom: 8px;
         }
 
-        header p {
-            color: #aaa;
-            font-size: 1rem;
-        }
+        header p { color: #aaa; font-size: 1rem; }
 
-        .container {
-            width: 100%;
-            max-width: 700px;
-            padding: 20px;
-            margin-top: 20px;
-        }
+        .container { width: 100%; max-width: 700px; padding: 20px; margin-top: 20px; }
 
         .input-group {
-            display: flex;
-            gap: 10px;
+            display: flex; gap: 10px;
             background: rgba(255,255,255,0.07);
             border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 12px;
-            padding: 8px;
+            border-radius: 12px; padding: 8px;
             transition: border-color 0.3s;
         }
 
-        .input-group:focus-within {
-            border-color: #f857a6;
-        }
+        .input-group:focus-within { border-color: #f857a6; }
 
         .input-group input {
-            flex: 1;
-            background: transparent;
-            border: none;
-            outline: none;
-            color: #fff;
-            font-size: 1rem;
-            padding: 10px 14px;
+            flex: 1; background: transparent; border: none;
+            outline: none; color: #fff; font-size: 1rem; padding: 10px 14px;
         }
 
-        .input-group input::placeholder {
-            color: #888;
-        }
+        .input-group input::placeholder { color: #888; }
 
         .btn {
-            padding: 12px 28px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
+            padding: 12px 28px; border: none; border-radius: 8px;
+            font-size: 1rem; font-weight: 600; cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
         }
 
-        .btn:active {
-            transform: scale(0.96);
+        .btn:active { transform: scale(0.96); }
+
+        .btn-primary { background: linear-gradient(90deg, #f857a6, #ff5858); color: #fff; }
+        .btn-primary:hover { box-shadow: 0 4px 20px rgba(248, 87, 166, 0.4); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+
+        .status { text-align: center; margin-top: 20px; min-height: 30px; font-size: 0.95rem; }
+        .status.error { color: #ff5858; }
+        .status.success { color: #58ff7d; }
+        .status.loading { color: #ffd97d; }
+
+        .preview-area { margin-top: 24px; text-align: center; display: none; }
+
+        .preview-area img, .preview-area video {
+            max-width: 100%; max-height: 400px; border-radius: 12px;
+            border: 2px solid rgba(255,255,255,0.1); background: #000;
         }
 
-        .btn-primary {
-            background: linear-gradient(90deg, #f857a6, #ff5858);
-            color: #fff;
-        }
+        .download-section { margin-top: 16px; display: none; text-align: center; }
+        .file-info { margin-bottom: 12px; color: #ccc; font-size: 0.9rem; }
 
-        .btn-primary:hover {
-            box-shadow: 0 4px 20px rgba(248, 87, 166, 0.4);
-        }
+        .btn-download { background: linear-gradient(90deg, #11998e, #38ef7d); color: #fff; padding: 14px 40px; font-size: 1.05rem; }
+        .btn-download:hover { box-shadow: 0 4px 20px rgba(56, 239, 125, 0.4); }
 
-        .btn-primary:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
-
-        .status {
-            text-align: center;
-            margin-top: 20px;
-            min-height: 30px;
-            font-size: 0.95rem;
-        }
-
-        .status.error {
-            color: #ff5858;
-        }
-
-        .status.success {
-            color: #58ff7d;
-        }
-
-        .status.loading {
-            color: #ffd97d;
-        }
-
-        .preview-area {
-            margin-top: 24px;
-            text-align: center;
-            display: none;
-        }
-
-        .preview-area img,
-        .preview-area video {
-            max-width: 100%;
-            max-height: 400px;
-            border-radius: 12px;
-            border: 2px solid rgba(255,255,255,0.1);
-            background: #000;
-        }
-
-        .download-section {
-            margin-top: 16px;
-            display: none;
-            text-align: center;
-        }
-
-        .file-info {
-            margin-bottom: 12px;
-            color: #ccc;
-            font-size: 0.9rem;
-        }
-
-        .btn-download {
-            background: linear-gradient(90deg, #11998e, #38ef7d);
-            color: #fff;
-            padding: 14px 40px;
-            font-size: 1.05rem;
-        }
-
-        .btn-download:hover {
-            box-shadow: 0 4px 20px rgba(56, 239, 125, 0.4);
-        }
-
-        .history {
-            margin-top: 40px;
-            width: 100%;
-            max-width: 700px;
-            padding: 0 20px 40px;
-        }
-
-        .history h2 {
-            font-size: 1.2rem;
-            color: #aaa;
-            margin-bottom: 12px;
-        }
-
-        .history-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
+        .history { margin-top: 40px; width: 100%; max-width: 700px; padding: 0 20px 40px; }
+        .history h2 { font-size: 1.2rem; color: #aaa; margin-bottom: 12px; }
+        .history-list { display: flex; flex-direction: column; gap: 8px; }
 
         .history-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 8px;
-            padding: 10px 14px;
-            font-size: 0.85rem;
-            color: #ccc;
-            word-break: break-all;
+            display: flex; align-items: center; justify-content: space-between;
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 8px; padding: 10px 14px; font-size: 0.85rem;
+            color: #ccc; word-break: break-all;
         }
 
-        .history-item a {
-            color: #f857a6;
-            text-decoration: none;
-            margin-left: 10px;
-            white-space: nowrap;
-        }
+        .history-item a { color: #f857a6; text-decoration: none; margin-left: 10px; white-space: nowrap; }
+        .history-item a:hover { text-decoration: underline; }
 
-        .history-item a:hover {
-            text-decoration: underline;
-        }
-
-        .supported-formats {
-            margin-top: 30px;
-            text-align: center;
-            color: #666;
-            font-size: 0.8rem;
-            padding-bottom: 40px;
-        }
-
-        .supported-formats span {
-            background: rgba(255,255,255,0.06);
-            padding: 4px 10px;
-            border-radius: 20px;
-            margin: 3px;
-            display: inline-block;
-        }
+        .supported-formats { margin-top: 30px; text-align: center; color: #666; font-size: 0.8rem; padding-bottom: 40px; }
+        .supported-formats span { background: rgba(255,255,255,0.06); padding: 4px 10px; border-radius: 20px; margin: 3px; display: inline-block; }
 
         @media (max-width: 500px) {
             header h1 { font-size: 1.8rem; }
@@ -240,7 +116,6 @@
         </div>
 
         <div class="status" id="status"></div>
-
         <div class="preview-area" id="previewArea"></div>
 
         <div class="download-section" id="downloadSection">
@@ -261,6 +136,10 @@
     <script>
         const IMAGE_EXTS = ['.jpg','.jpeg','.png','.gif','.webp','.bmp','.svg','.ico','.tiff'];
         const VIDEO_EXTS = ['.mp4','.webm','.ogg','.mov','.avi','.mkv'];
+        const CORS_PROXIES = [
+            url => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url),
+            url => 'https://corsproxy.io/?url=' + encodeURIComponent(url),
+        ];
 
         let currentBlobUrl = null;
         let currentFileName = 'download';
@@ -274,12 +153,7 @@
         const historySection = document.getElementById('historySection');
         const historyList = document.getElementById('historyList');
 
-        const PROXY_BASE = window.location.origin + '/proxy?url=';
-        const INFO_BASE = window.location.origin + '/info?url=';
-
-        urlInput.addEventListener('keydown', e => {
-            if (e.key === 'Enter') fetchMedia();
-        });
+        urlInput.addEventListener('keydown', e => { if (e.key === 'Enter') fetchMedia(); });
 
         function setStatus(msg, type) {
             statusEl.textContent = msg;
@@ -296,42 +170,44 @@
             return null;
         }
 
-        function isVideoType(contentType) {
-            return contentType && contentType.startsWith('video');
+        function isVideoType(ct) { return ct && ct.startsWith('video'); }
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        async function fetchWithProxy(url) {
+            for (const proxyFn of CORS_PROXIES) {
+                try {
+                    const proxyUrl = proxyFn(url);
+                    const resp = await fetch(proxyUrl, { signal: AbortSignal.timeout(15000) });
+                    if (resp.ok) return resp;
+                } catch {}
+            }
+            throw new Error('All proxies failed. Try a different URL.');
         }
 
         async function fetchMedia() {
             const url = urlInput.value.trim();
-            if (!url) {
-                setStatus('Please enter a URL', 'error');
-                return;
-            }
+            if (!url) { setStatus('Please enter a URL', 'error'); return; }
 
-            try {
-                new URL(url);
-            } catch {
-                setStatus('Invalid URL format', 'error');
-                return;
-            }
+            try { new URL(url); } catch { setStatus('Invalid URL format', 'error'); return; }
 
             setStatus('Fetching media...', 'loading');
             fetchBtn.disabled = true;
             previewArea.style.display = 'none';
             downloadSection.style.display = 'none';
-            if (currentBlobUrl) {
-                URL.revokeObjectURL(currentBlobUrl);
-                currentBlobUrl = null;
-            }
+            if (currentBlobUrl) { URL.revokeObjectURL(currentBlobUrl); currentBlobUrl = null; }
 
             try {
-                const proxyUrl = PROXY_BASE + encodeURIComponent(url);
-                const response = await fetch(proxyUrl);
-                if (!response.ok) {
-                    const errData = await response.json().catch(() => null);
-                    throw new Error(errData?.error || `HTTP ${response.status}`);
-                }
+                const response = await fetchWithProxy(url);
 
                 const contentType = response.headers.get('content-type') || '';
+                const contentLength = parseInt(response.headers.get('content-length') || '0');
                 const blob = await response.blob();
 
                 const extFromUrl = getExt(url);
@@ -347,8 +223,7 @@
                 } else if (extFromUrl) {
                     isVideo = VIDEO_EXTS.includes(extFromUrl);
                 } else {
-                    const sniff = blob.type;
-                    if (isVideoType(sniff)) { isVideo = true; ext = '.mp4'; }
+                    if (isVideoType(blob.type)) { isVideo = true; ext = '.mp4'; }
                     else { ext = '.png'; }
                 }
 
@@ -357,7 +232,7 @@
                 const urlPath = new URL(url).pathname.split('/').pop().split('?')[0];
                 currentFileName = urlPath && urlPath.includes('.') ? urlPath : 'media' + ext;
 
-                const sizeMB = (blob.size / (1024 * 1024)).toFixed(2);
+                const sizeText = contentLength > 0 ? formatBytes(contentLength) : formatBytes(blob.size);
 
                 previewArea.innerHTML = '';
                 if (isVideo) {
@@ -374,7 +249,7 @@
                 }
                 previewArea.style.display = 'block';
 
-                fileInfo.textContent = currentFileName + '  —  ' + sizeMB + ' MB';
+                fileInfo.textContent = currentFileName + '  —  ' + sizeText;
                 downloadSection.style.display = 'block';
 
                 setStatus('Ready to download!', 'success');
@@ -406,10 +281,7 @@
 
         function renderHistory() {
             const history = JSON.parse(localStorage.getItem('mg_history') || '[]');
-            if (history.length === 0) {
-                historySection.style.display = 'none';
-                return;
-            }
+            if (history.length === 0) { historySection.style.display = 'none'; return; }
             historySection.style.display = 'block';
             historyList.innerHTML = '';
             history.forEach(item => {
